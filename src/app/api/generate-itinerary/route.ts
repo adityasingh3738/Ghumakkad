@@ -45,6 +45,7 @@ export async function POST(req: Request) {
         headers: { Authorization: `Bearer ${apiToken}` },
         method: "POST",
         body: JSON.stringify({
+          max_tokens: 2500,
           messages: [
             { role: "system", content: "You are an expert travel planner for India." },
             { role: "user", content: prompt }
