@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Ghummakkad | Budget Travel Itineraries for India",
+  title: "Travelly | Budget Travel Itineraries for India",
   description: "Generate realistic budget travel itineraries for your next trip in India.",
 };
 

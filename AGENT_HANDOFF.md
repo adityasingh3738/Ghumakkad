@@ -1,7 +1,7 @@
-# Ghummakkad - Project Context & Agent Handoff
+# Travelly - Project Context & Agent Handoff
 
 ## Project Overview
-Ghummakkad is a premium, AI-powered budget travel itinerary generator specifically designed for Indian destinations. It takes user inputs (Starting Point, Destination, Budget, Travellers, Days, and Notes) and uses a Large Language Model (LLM) to generate a highly detailed, day-by-day markdown itinerary including transport, accommodation, and precise cost breakdowns.
+Travelly is a premium, AI-powered budget travel itinerary generator specifically designed for Indian destinations. It takes user inputs (Starting Point, Destination, Budget, Travellers, Days, and Notes) and uses a Large Language Model (LLM) to generate a highly detailed, day-by-day markdown itinerary including transport, accommodation, and precise cost breakdowns.
 
 ## Tech Stack
 - **Frontend Framework:** Next.js 15 (App Router), React 19
