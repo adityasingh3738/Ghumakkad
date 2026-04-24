@@ -5,9 +5,9 @@ export const maxDuration = 60; // Set Vercel function timeout to 60 seconds
 
 export async function POST(req: Request) {
   try {
-    const { budget, travellers, destination, days, notes } = await req.json();
+    const { budget, travellers, startingPoint, destination, days, notes } = await req.json();
 
-    if (!budget || !travellers || !destination || !days) {
+    if (!budget || !travellers || !startingPoint || !destination || !days) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const prompt = `
       You are an expert travel planner for budget travelers in India. 
-      Create a highly realistic and detailed travel itinerary for a ${days}-day trip with a total budget of ₹${budget}, for ${travellers} travellers, to the destination: ${destination}.
+      Create a highly realistic and detailed travel itinerary for a ${days}-day trip with a total budget of ₹${budget}, for ${travellers} travellers, starting from ${startingPoint} and traveling to the destination: ${destination}.
       ${notes ? `IMPORTANT NOTE FROM TRAVELER: Make absolutely sure to include the following in the itinerary: "${notes}"` : ""}
       
       Include exact options like bus or train timings, specific budget stays (e.g., Zostel, local hostels), and precise cost breakdowns.

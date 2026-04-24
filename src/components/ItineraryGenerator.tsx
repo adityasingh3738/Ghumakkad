@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Loader2, MapPin, Users, Wallet, CalendarDays, StickyNote } from "lucide-react";
+import { Loader2, MapPin, Users, Wallet, CalendarDays, StickyNote, PlaneTakeoff } from "lucide-react";
 import { MagneticButton } from "./ui/MagneticButton";
 
 const POPULAR_DESTINATIONS = [
@@ -15,6 +15,7 @@ const POPULAR_DESTINATIONS = [
 export function ItineraryGenerator() {
   const [budget, setBudget] = useState("");
   const [travellers, setTravellers] = useState("");
+  const [startingPoint, setStartingPoint] = useState("");
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
   const [notes, setNotes] = useState("");
@@ -28,7 +29,7 @@ export function ItineraryGenerator() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!budget || !travellers || !destination || !days) return;
+    if (!budget || !travellers || !startingPoint || !destination || !days) return;
 
     setIsLoading(true);
     setItinerary("");
@@ -37,7 +38,7 @@ export function ItineraryGenerator() {
       const response = await fetch("/api/generate-itinerary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ budget, travellers, destination, days, notes }),
+        body: JSON.stringify({ budget, travellers, startingPoint, destination, days, notes }),
       });
 
       const data = await response.json();
@@ -64,6 +65,20 @@ export function ItineraryGenerator() {
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 p-8 md:p-12">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
+            <div className="space-y-2 relative">
+              <label className="text-sm font-semibold text-slate-700 ml-1">Starting Point</label>
+              <div className="relative">
+                <PlaneTakeoff className="absolute left-4 top-1/2 -translate-y-1/2 text-brand h-5 w-5" />
+                <input
+                  type="text"
+                  placeholder="e.g., Delhi, Mumbai, Bangalore"
+                  value={startingPoint}
+                  onChange={(e) => setStartingPoint(e.target.value)}
+                  required
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand hover-target transition-all text-slate-800"
+                />
+              </div>
+            </div>
             <div className="space-y-2 relative">
               <label className="text-sm font-semibold text-slate-700 ml-1">Destination (in India)</label>
               <div className="relative">
