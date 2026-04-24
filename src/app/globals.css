@@ -1,26 +1,84 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+
+  --color-brand: #0ea5e9;
+  --color-brand-dark: #0284c7;
+  --color-dark: #0f172a;
+  --color-light: #f8fafc;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: var(--color-light);
+  --foreground: var(--color-dark);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--color-dark);
+    --foreground: var(--color-light);
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  /* Hide cursor for custom cursor */
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* Ensure interactive elements also have no cursor initially so our custom one handles it */
+a, button, input, textarea, select {
+  cursor: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Custom Cursor Styles */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(14, 165, 233, 0.2);
+  border: 2px solid rgba(14, 165, 233, 0.8);
+  backdrop-filter: blur(4px);
+  transform: translate(-50%, -50%);
+}
+
+.custom-cursor .cursor-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-brand);
+}
+
+/* Hide custom cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    cursor: auto;
+  }
+  a, button, input, textarea, select {
+    cursor: pointer !important;
+  }
+  .custom-cursor {
+    display: none;
+  }
 }
