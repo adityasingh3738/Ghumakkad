@@ -24,12 +24,18 @@ export async function POST(req: Request) {
     }
 
     const prompt = `
-      Create a highly realistic and detailed travel itinerary for a ${days}-day trip with a total budget of ₹${budget}, for ${travellers} travellers, starting from ${startingPoint} and traveling to the destination: ${destination}.
+      Create a highly realistic and detailed travel itinerary. Follow these STRICT rules:
+      1. EXACT DESTINATION: The trip MUST start from ${startingPoint} and the destination MUST strictly be ${destination}. DO NOT create an itinerary for any other destination (e.g. if the destination is Guwahati, do not write about Lucknow).
+      2. EXACT DAYS: You MUST explicitly write out an itinerary that covers ALL ${days} days. Do not stop early. Every single day from Day 1 to Day ${days} must have activities.
+      3. EXACT BUDGET & TRAVELLERS: The total budget is exactly ₹${budget} for exactly ${travellers} travellers. 
+      4. SCALE WITH BUDGET: Do not default to the cheapest ever options if the budget is high! If the budget allows it, suggest better flights, premium AC trains, comfortable 3-star/4-star hotels, and premium experiences. If the budget is low, suggest Zostels and buses. Maximize the value of the exact budget given.
+      5. NO HALLUCINATIONS: Base everything on real geography, realistic travel times, and real transport routes.
+      
       ${notes ? `IMPORTANT NOTE FROM TRAVELER: Make absolutely sure to include the following in the itinerary: "${notes}"` : ""}
       
-      Include exact options like bus or train timings, specific budget stays (e.g., Zostel, local hostels), and precise cost breakdowns.
+      Include exact transport options, specific stay names, and precise cost breakdowns for the ${travellers} travellers.
       Return the response formatted strictly as beautifully structured Markdown. 
-      Use Headings for days, bold text for important information like costs and timings, and bullet points for activities.
+      Use Headings for every single day, bold text for important information like costs and timings, and bullet points for activities.
       Do not include any introductory or concluding text outside the Markdown itinerary itself. Make it exciting!
     `;
 
@@ -40,7 +46,7 @@ export async function POST(req: Request) {
         method: "POST",
         body: JSON.stringify({
           messages: [
-            { role: "system", content: "You are an expert travel planner for budget travelers in India." },
+            { role: "system", content: "You are an expert travel planner for India." },
             { role: "user", content: prompt }
           ]
         }),
