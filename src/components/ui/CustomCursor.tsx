@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Navigation } from "lucide-react";
+import { Plane } from "lucide-react";
 
 export function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -15,8 +15,8 @@ export function CustomCursor() {
     import("gsap").then((gsapModule) => {
       const gsap = gsapModule.default;
 
-      // Set initial rotation so it looks like a standard cursor
-      gsap.set(icon, { rotation: -45 });
+      // Set initial rotation so it looks like it's flying upwards to the right
+      gsap.set(icon, { rotation: 45 });
 
       const xTo = gsap.quickTo(cursor, "x", { duration: 0.2, ease: "power3" });
       const yTo = gsap.quickTo(cursor, "y", { duration: 0.2, ease: "power3" });
@@ -27,32 +27,34 @@ export function CustomCursor() {
       };
 
       const onMouseEnter = () => {
-        // Expand circle and rotate the "plane" to take off
+        // Expand circle and rotate the plane
         gsap.to(cursor, { 
           scale: 1.8, 
-          backgroundColor: "rgba(14, 165, 233, 0.4)", 
+          backgroundColor: "rgba(14, 165, 233, 0.2)", 
           duration: 0.4, 
           ease: "back.out(1.5)" 
         });
         gsap.to(icon, { 
-          rotation: 45, 
+          rotation: 90, 
           scale: 0.8,
+          opacity: 0.8,
           duration: 0.4, 
           ease: "power3.out" 
         });
       };
 
       const onMouseLeave = () => {
-        // Shrink circle and rotate back to pointer
+        // Shrink circle and rotate back
         gsap.to(cursor, { 
           scale: 1, 
-          backgroundColor: "rgba(14, 165, 233, 0.1)", 
+          backgroundColor: "rgba(14, 165, 233, 0.05)", 
           duration: 0.3, 
           ease: "power3.out" 
         });
         gsap.to(icon, { 
-          rotation: -45, 
+          rotation: 45, 
           scale: 1,
+          opacity: 0.5,
           duration: 0.3, 
           ease: "power3.out" 
         });
@@ -95,8 +97,8 @@ export function CustomCursor() {
   }, []);
 
   return (
-    <div ref={cursorRef} className="custom-cursor flex items-center justify-center">
-      <Navigation ref={iconRef} className="cursor-icon fill-brand text-brand w-5 h-5" strokeWidth={1.5} />
+    <div ref={cursorRef} className="custom-cursor flex items-center justify-center pointer-events-none z-50 transition-colors">
+      <Plane ref={iconRef} className="cursor-icon text-brand w-6 h-6 opacity-50" strokeWidth={1.5} fill="none" />
     </div>
   );
 }
