@@ -12,6 +12,11 @@ const POPULAR_DESTINATIONS = [
   "Jaisalmer", "Gokarna", "Kasol", "Tawang"
 ].sort();
 
+const POPULAR_STARTING_POINTS = [
+  "Delhi", "Mumbai", "Bangalore", "Chennai", "Kolkata", "Hyderabad", 
+  "Pune", "Ahmedabad", "Jaipur", "Chandigarh", "Lucknow", "Kochi", "Guwahati"
+].sort();
+
 export function ItineraryGenerator() {
   const [budget, setBudget] = useState("");
   const [travellers, setTravellers] = useState("");
@@ -22,10 +27,15 @@ export function ItineraryGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [itinerary, setItinerary] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showStartSuggestions, setShowStartSuggestions] = useState(false);
 
   const filteredDestinations = destination
     ? POPULAR_DESTINATIONS.filter(d => d.toLowerCase().includes(destination.toLowerCase()))
     : POPULAR_DESTINATIONS;
+
+  const filteredStartingPoints = startingPoint
+    ? POPULAR_STARTING_POINTS.filter(d => d.toLowerCase().includes(startingPoint.toLowerCase()))
+    : POPULAR_STARTING_POINTS;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,10 +83,31 @@ export function ItineraryGenerator() {
                   type="text"
                   placeholder="e.g., Delhi, Mumbai, Bangalore"
                   value={startingPoint}
-                  onChange={(e) => setStartingPoint(e.target.value)}
+                  onChange={(e) => {
+                    setStartingPoint(e.target.value);
+                    setShowStartSuggestions(true);
+                  }}
+                  onFocus={() => setShowStartSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowStartSuggestions(false), 200)}
                   required
                   className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand hover-target transition-all text-slate-800"
                 />
+                {showStartSuggestions && filteredStartingPoints.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                    {filteredStartingPoints.map(d => (
+                      <div
+                        key={d}
+                        className="px-4 py-3 hover:bg-slate-50 cursor-pointer text-slate-700 transition-colors"
+                        onClick={() => {
+                          setStartingPoint(d);
+                          setShowStartSuggestions(false);
+                        }}
+                      >
+                        {d}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="space-y-2 relative">
