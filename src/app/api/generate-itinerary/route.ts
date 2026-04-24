@@ -41,10 +41,10 @@ export async function POST(req: Request) {
     const text = response.text();
 
     return NextResponse.json({ itinerary: text });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating itinerary:", error);
     return NextResponse.json(
-      { error: "Failed to generate itinerary. Please try again later." },
+      { error: error.message || "Failed to generate itinerary. Please try again later." },
       { status: 500 }
     );
   }

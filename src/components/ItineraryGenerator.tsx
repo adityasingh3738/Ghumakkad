@@ -55,7 +55,7 @@ export function ItineraryGenerator() {
       if (data.itinerary) {
         setItinerary(data.itinerary);
       } else {
-        setItinerary("Error generating itinerary. Please try again.");
+        setItinerary(`Error: ${data.error || "Failed to generate itinerary. Please try again."}`);
       }
     } catch (error) {
       setItinerary("Network error. Please try again.");
