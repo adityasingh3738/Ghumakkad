@@ -32,6 +32,7 @@ The project initially used the Google Gemini API (`gemini-2.5-flash`), but due t
 3. **Prompt Engineering Fixes (Llama 3.1):** 
    The AI prompt in `route.ts` was significantly hardened to fix the following issues:
    - **Day Limits:** Forced the AI to explicitly write out all X days instead of stopping at Day 2.
+   - **Strict Budget Limits:** Enforced a hard upper limit on the budget to prevent the LLM from generating itineraries that cost 25k on a 15k budget, which resulted in a negative remaining budget. The AI is now instructed to explicitly downgrade options (e.g., sleeper trains instead of flights) when the budget is tight.
    - **Budget Scaling:** Instructed the AI to scale recommendations based on the budget (e.g., if the budget is high, suggest premium flights and 4-star hotels instead of defaulting to cheap buses).
    - **Hallucinations:** Added strict negative prompting to stick *only* to the requested destination (e.g., if Varanasi to Guwahati, do not output Lucknow) and to use real geography.
    - **Exact Math:** Enforced exact accounting for the number of travellers.
