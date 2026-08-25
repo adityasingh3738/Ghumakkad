@@ -2,20 +2,49 @@ import { NextResponse } from "next/server";
 
 export const maxDuration = 60; // Set Vercel function timeout to 60 seconds
 
+const getDateRange = (startDate: string, endDate: string) => {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  const days: string[] = [];
+
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    days.push(cursor.toISOString().slice(0, 10));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return days;
+};
+
 export async function POST(req: Request) {
   try {
-    const { budget, travellers, startingPoint, destination, days, notes } = await req.json();
+    const {
+      budget,
+      travellers,
+      startingPoint,
+      destination,
+      startDate,
+      endDate,
+      numberOfDays,
+      days,
+      notes,
+    } = await req.json();
 
-    if (!budget || !travellers || !startingPoint || !destination || !days) {
+    const tripDays = Number(numberOfDays ?? days ?? 0);
+    const tripDates = startDate && endDate ? getDateRange(startDate, endDate) : [];
+
+    if (!budget || !travellers || !startingPoint || !destination || (!startDate && !endDate && !tripDays)) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
+    const resolvedDays = tripDates.length > 0 ? tripDates.length : Math.max(tripDays, 1);
+
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-    
+
     if (!accountId || !apiToken) {
       return NextResponse.json(
         { error: "Cloudflare credentials are not configured" },
@@ -23,13 +52,22 @@ export async function POST(req: Request) {
       );
     }
 
+    const actualDateList = tripDates.length > 0 ? tripDates : Array.from({ length: resolvedDays }, (_, index) => {
+      const start = new Date();
+      start.setDate(start.getDate() + index);
+      return start.toISOString().slice(0, 10);
+    });
+
     const prompt = `
 You are an expert Indian travel planner with deep knowledge of real transport routes, actual hotel prices, and realistic travel logistics across India.
 
 TRIP DETAILS:
 - Starting point: ${startingPoint}
 - Destination: ${destination}
-- Number of days: ${days}
+- Start date: ${startDate || actualDateList[0] || "TBD"}
+- End date: ${endDate || actualDateList[actualDateList.length - 1] || "TBD"}
+- Trip length (derived from dates): ${resolvedDays} days
+- Actual trip dates in order: ${actualDateList.map((date, index) => `Day ${index + 1}: ${date}`).join(", ")}
 - Number of travellers: ${travellers}
 - Total budget (for ALL travellers combined): ₹${budget}
 ${notes ? `- Special requirements: ${notes}` : ''}
@@ -74,9 +112,10 @@ BUDGET RULES:
 - The final cost summary must show zero or positive remaining balance. NEVER show a negative remaining budget.
 
 DAY COVERAGE RULES:
-- You MUST write a detailed plan for ALL ${days} days without exception. Day 1 through Day ${days} — every single one.
-- Day 1 must account for travel time from ${startingPoint} to ${destination}. If travel takes most of Day 1, only schedule activities after the realistic arrival time.
-- The last day must account for checkout time and return journey if applicable.
+- You MUST write a detailed plan for ALL dates in the trip sequence below. Do not skip any date, and do not invent any date.
+- The trip dates are fixed and authoritative: ${actualDateList.map((date, index) => `Day ${index + 1} = ${date}`).join("; ")}
+- For the first trip date, account for travel time from ${startingPoint} to ${destination}. If travel takes most of the day, only schedule activities after the realistic arrival time.
+- The final trip date must account for checkout time and return journey if applicable.
 - Do NOT pad days with vague filler like "explore the city freely." Every activity must have a specific place name, realistic timing, and cost.
 - Do not schedule more than 4-5 attractions per day. Account for travel time between places, meals, and rest.
 
@@ -93,7 +132,7 @@ THINGS YOU MUST NEVER DO:
 - Never suggest a train that doesn't run on that route.
 - Never list attractions, hotels, or restaurants from the wrong city.
 - Never exceed the ₹${budget} total budget.
-- Never skip a day — all ${days} days must be covered.
+- Never skip a date in the trip sequence — every date in the list must be covered.
 - Never show a negative remaining budget.
 - Never suggest a hotel without specifying the area or locality it is in.
 - Never schedule activities without realistic timings.
@@ -127,10 +166,10 @@ Start with a budget allocation table:
 | Buffer | ₹X |
 | **Total** | **₹X / ₹${budget} ✅** |
 
-Then for each day:
+Then for each date in the trip sequence, write one day block using the specific ISO date from the list above:
 
-## Day N — [Catchy Day Title]
-**Date context:** Day N of ${days}
+## Day N — [Catchy Day Title] (YYYY-MM-DD)
+**Date context:** Trip date: YYYY-MM-DD
 **Base:** [Area/locality where they are staying]
 
 - **[HH:MM AM/PM]** — [Activity with specific place name]. *Cost: ₹X per person*
@@ -157,6 +196,7 @@ End with a cost summary:
 | **Budget** | **₹${budget}** |
 | **Remaining** | **₹X ✅** |
 
+Important: use the exact dates in the trip sequence and do not invent any additional dates. Each day title should correspond to the actual date for that day.
 Make the tone exciting and aspirational — but never at the cost of accuracy.
 `;
 
@@ -176,7 +216,7 @@ Make the tone exciting and aspirational — but never at the cost of accuracy.
     );
 
     const result = await response.json();
-    
+
     if (!result.success) {
       throw new Error(result.errors?.[0]?.message || "Cloudflare API error");
     }
