@@ -122,6 +122,15 @@ export function ItineraryGenerator() {
     return parseItineraryMarkdown(itinerary, destination || "your destination");
   }, [destination, itinerary]);
 
+  const itinerarySummaryMarkdown = useMemo(() => {
+    if (!itinerary) return "";
+
+    const budgetSection = itinerary.match(/## Budget Allocation[\s\S]*?(?=\n## Day\s|\n## 💰 Final Cost Summary|$)/i);
+    const finalSection = itinerary.match(/## 💰 Final Cost Summary[\s\S]*$/i);
+
+    return [budgetSection?.[0], finalSection?.[0]].filter(Boolean).join("\n\n");
+  }, [itinerary]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -420,6 +429,12 @@ export function ItineraryGenerator() {
                     </div>
                   </section>
                 ))}
+
+                {itinerarySummaryMarkdown ? (
+                  <div className="prose prose-slate prose-lg max-w-none prose-headings:font-heading prose-headings:text-slate-800 prose-a:text-brand prose-strong:text-slate-800 border-t border-slate-200 pt-8">
+                    <ReactMarkdown>{itinerarySummaryMarkdown}</ReactMarkdown>
+                  </div>
+                ) : null}
               </div>
             ) : (
               <div className="prose prose-slate prose-lg max-w-none prose-headings:font-heading prose-headings:text-slate-800 prose-a:text-brand prose-strong:text-slate-800">
